@@ -11,6 +11,9 @@ interface DataDao {
     @Query("SELECT * FROM TABLE_DATA")
     fun getAllData(): List<DataModel>
 
+    @Query("SELECT * FROM TABLE_DATA LIMIT :itemLimit OFFSET :offset")
+    fun getLimitedData(offset: Int, itemLimit: Int): List<DataModel>
+
     @Query("SELECT count(*) FROM TABLE_DATA")
     fun getCount(): Int
 

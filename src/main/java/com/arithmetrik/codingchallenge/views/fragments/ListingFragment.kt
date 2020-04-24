@@ -1,11 +1,13 @@
 package com.arithmetrik.codingchallenge.views.fragments
 
+import Constants.Companion.ITEM_LIMIT
 import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.arithmetrik.codingchallenge.AltimetrikViewModel
 import com.arithmetrik.codingchallenge.R
 import com.arithmetrik.codingchallenge.networkService.model.DataModel
+import com.arithmetrik.codingchallenge.utils.EndlessRecyclerOnScrollListener
 import com.arithmetrik.codingchallenge.views.FragmentCallBack
 import com.arithmetrik.codingchallenge.views.ListItemAdapter
 import java.util.*
@@ -35,6 +38,8 @@ class ListingFragment : Fragment() {
     private var dataList: ArrayList<DataModel> = ArrayList<DataModel>()
     var fragmentCallbacks: FragmentCallBack? = null
     private var searchTerm: String = ""
+    private var mCurrentPage: Int = 0
+    private var mTotalItemCount: Int = ITEM_LIMIT
 
     /*
        * onAttach(Context) is not called on pre API 23 versions of Android and onAttach(Activity) is deprecated
@@ -65,6 +70,18 @@ class ListingFragment : Fragment() {
             fragmentCallbacks = context
         } else {
             throw RuntimeException("$context must implement FragmentCallback methods")
+        }
+    }
+
+    private val mEndlessScrollListener = object : EndlessRecyclerOnScrollListener() {
+        override fun onLoadMore(currentPage: Int) {
+            Log.d("CurrentPage - ", currentPage.toString())
+            mCurrentPage = currentPage
+            if (mTotalItemCount > (currentPage * ITEM_LIMIT) - 1) {
+                Log.d("mCurrentPage - ", mCurrentPage.toString())
+                // searchTerm?.let { storyListViewModel?.loadSearchResult(it, mCurrentPage) }
+                viewModel.getData(context, mCurrentPage * ITEM_LIMIT)
+            }
         }
     }
 
@@ -104,19 +121,26 @@ class ListingFragment : Fragment() {
 
 
         viewModel = ViewModelProviders.of(this).get(AltimetrikViewModel::class.java)
-        viewModel.getData(context)?.observe(this, Observer {
+        loadData(viewModel, 0)
+        setupRecyclerView(dataList)
+    }
+
+    private fun loadData(viewModel: AltimetrikViewModel, offset: Int) {
+
+        viewModel.getData(context, offset)?.observe(this, Observer {
             if (it != null && it.size > 0) {
-                dataList.clear()
                 dataList.addAll(it)
+                mTotalItemCount = dataList.size
                 listAdapter?.notifyDataSetChanged()
                 recyclerView?.visibility = View.VISIBLE
                 errorMsgTV?.visibility = View.GONE
+                mEndlessScrollListener.setLoadingCompleted()
             } else {
+                mEndlessScrollListener.resetState()
                 recyclerView?.visibility = View.GONE
                 errorMsgTV?.visibility = View.VISIBLE
             }
         })
-        setupRecyclerView(dataList)
     }
 
     private fun setupRecyclerView(it: List<DataModel>) {
@@ -124,6 +148,7 @@ class ListingFragment : Fragment() {
             listAdapter = ListItemAdapter(context, it, fragmentCallbacks)
             recyclerView?.layoutManager = LinearLayoutManager(this.context)
             recyclerView?.adapter = listAdapter
+            recyclerView?.addOnScrollListener(mEndlessScrollListener)
         } else
             listAdapter?.notifyDataSetChanged()
     }

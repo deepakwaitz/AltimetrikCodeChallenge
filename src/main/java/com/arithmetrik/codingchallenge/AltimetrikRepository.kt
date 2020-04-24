@@ -1,5 +1,6 @@
 package com.arithmetrik.codingchallenge
 
+import Constants.Companion.ITEM_LIMIT
 import RetrofitApiClient
 import android.content.Context
 import android.util.Log
@@ -13,6 +14,7 @@ import retrofit2.Response
 
 object AltimetrikRepository {
     private var appDatabase: AppDataBase? = null
+    val newsData: MutableLiveData<List<DataModel>> = MutableLiveData<List<DataModel>>()
 
     fun search(context: Context?, searchTearm: String): MutableLiveData<List<DataModel>> {
         val searchData: MutableLiveData<List<DataModel>> = MutableLiveData<List<DataModel>>()
@@ -20,27 +22,25 @@ object AltimetrikRepository {
             appDatabase = AppDataBase.getAppDataBaseInstance(context)
 
         if (appDatabase?.dataDao()?.getCount() != 0) {
-            searchData.value = appDatabase?.dataDao()?.search("%"+searchTearm+"%")
+            searchData.value = appDatabase?.dataDao()?.search("%" + searchTearm + "%")
             return searchData
         }
         return searchData
     }
 
 
-    fun getData(context: Context?): MutableLiveData<List<DataModel>> {
-        val newsData: MutableLiveData<List<DataModel>> = MutableLiveData<List<DataModel>>()
+    fun getData(context: Context?, offSet: Int): MutableLiveData<List<DataModel>> {
         if (appDatabase == null)
             appDatabase = AppDataBase.getAppDataBaseInstance(context)
 
-
         if (appDatabase?.dataDao()?.getCount() != 0) {
-            newsData.value = appDatabase?.dataDao()?.getAllData()
+            newsData.value = appDatabase?.dataDao()?.getLimitedData(offSet, ITEM_LIMIT)
             return newsData
         } else
-            return getDataFromAPI(newsData)
+            return getDataFromAPI(offSet)
     }
 
-    private fun getDataFromAPI(newsData: MutableLiveData<List<DataModel>>): MutableLiveData<List<DataModel>> {
+    private fun getDataFromAPI(offSet: Int): MutableLiveData<List<DataModel>> {
         val retrofitService: IDataService =
             RetrofitApiClient.getRetrofitApiClient()
                 .create(IDataService::class.java)
@@ -55,7 +55,7 @@ object AltimetrikRepository {
                 Log.d("Repository- onResponse", "")
                 //newsData.value = response.body()
                 response.body()?.let { appDatabase?.dataDao()?.insertData(it) }
-                newsData.value = appDatabase?.dataDao()?.getAllData()
+                newsData.value = appDatabase?.dataDao()?.getLimitedData(offSet, ITEM_LIMIT)
             }
         })
 
