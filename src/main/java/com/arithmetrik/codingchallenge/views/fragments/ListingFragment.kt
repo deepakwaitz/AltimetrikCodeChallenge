@@ -33,6 +33,7 @@ class ListingFragment : Fragment() {
     private var recyclerView: RecyclerView? = null
     private var searchET: EditText? = null
     private var errorMsgTV: TextView? = null
+    private var itemCountTV: TextView? = null
     private lateinit var viewModel: AltimetrikViewModel
     private var listAdapter: ListItemAdapter? = null
     private var dataList: ArrayList<DataModel> = ArrayList<DataModel>()
@@ -90,6 +91,7 @@ class ListingFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recycler_view)
         searchET = view.findViewById(R.id.search_edit_text)
         errorMsgTV = view.findViewById(R.id.error_message)
+        itemCountTV = view.findViewById(R.id.item_count_tv)
         return view
     }
 
@@ -126,10 +128,10 @@ class ListingFragment : Fragment() {
     }
 
     private fun loadData(viewModel: AltimetrikViewModel, offset: Int) {
-
         viewModel.getData(context, offset)?.observe(this, Observer {
             if (it != null && it.size > 0) {
                 dataList.addAll(it)
+                itemCountTV?.text = dataList.size.toString() + " / 101"
                 mTotalItemCount = dataList.size
                 listAdapter?.notifyDataSetChanged()
                 recyclerView?.visibility = View.VISIBLE
