@@ -26,5 +26,4 @@ class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         authorTV?.text = mContext?.getString(R.string.by_placeholder).toString() + " " + element.author
         percentageTV?.text = mContext?.getString(R.string.funded_placeholder) + element.percentageFunded.toString()
     }
-
 }

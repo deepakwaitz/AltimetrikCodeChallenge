@@ -2,4 +2,10 @@
     <string name="app_name">CodingChallenge</string>
     <string name="funded_placeholder">Funded Percentage - &#160;</string>
     <string name="by_placeholder">By - &#160;</string>
+    <string name="blurb_placeholder">Blurb - &#160;</string>
+    <string name="country_placeholder">Country - &#160;</string>
+    <string name="location_placeholder">Location - &#160;</string>
+    <string name="state_placeholder">State - &#160;</string>
+    <string name="type_placeholder">Type - &#160;</string>
+    <string name="backers_placeholder">Number of Backers - &#160;</string>
 </resources>
