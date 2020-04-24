@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">CodingChallenge</string>
-    <string name="baseURL">http://starlord.hackerearth.com</string>
+    <string name="funded_placeholder">Funded Percentage - &#160;</string>
+    <string name="by_placeholder">By - &#160;</string>
 </resources>

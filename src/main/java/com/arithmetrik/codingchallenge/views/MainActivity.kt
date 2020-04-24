@@ -1,8 +1,9 @@
-package com.arithmetrik.codingchallenge.view
+package com.arithmetrik.codingchallenge.views
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.arithmetrik.codingchallenge.R
+import com.arithmetrik.codingchallenge.views.fragments.ListingFragment
 
 class MainActivity : AppCompatActivity() {
 

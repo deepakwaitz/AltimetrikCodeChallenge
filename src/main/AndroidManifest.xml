@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.arithmetrik.codingchallenge.view.MainActivity">
+        <activity android:name="com.arithmetrik.codingchallenge.views.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
