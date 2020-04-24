@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">CodeingChallenge</string>
+    <string name="app_name">CodingChallenge</string>
+    <string name="baseURL">http://starlord.hackerearth.com</string>
 </resources>

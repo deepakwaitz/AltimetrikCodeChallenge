@@ -1,4 +1,4 @@
-package com.arithmetrik.codeingchallenge
+package com.arithmetrik.codingchallenge
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

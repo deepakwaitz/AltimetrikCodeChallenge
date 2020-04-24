@@ -1,4 +1,4 @@
-package com.arithmetrik.codeingchallenge
+package com.arithmetrik.codingchallenge
 
 import org.junit.Test
 

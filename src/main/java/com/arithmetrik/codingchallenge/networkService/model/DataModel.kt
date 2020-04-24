@@ -1,9 +1,9 @@
-package com.arithmetrik.codeingchallenge.networkService.model
+package com.arithmetrik.codingchallenge.networkService.model
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-class ResponseModel {
+class DataModel {
     @SerializedName("s.no")
     @Expose
     var serialNo: Int? = null
