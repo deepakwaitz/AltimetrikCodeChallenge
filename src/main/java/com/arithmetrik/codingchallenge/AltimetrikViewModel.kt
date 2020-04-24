@@ -1,5 +1,6 @@
 package com.arithmetrik.codingchallenge
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.arithmetrik.codingchallenge.networkService.model.DataModel
@@ -7,11 +8,11 @@ import com.arithmetrik.codingchallenge.networkService.model.DataModel
 class AltimetrikViewModel : ViewModel() {
     private var mutableLiveData: MutableLiveData<List<DataModel>>? = null
 
-    init {
-        mutableLiveData = AltimetrikRepository.getDataFromAPI()
-    }
+    /*init {
+        mutableLiveData = AltimetrikRepository.getData()
+    }*/
 
-    fun getData(): MutableLiveData<List<DataModel>>? {
-        return mutableLiveData
+    fun getData(context: Context?): MutableLiveData<List<DataModel>>? {
+        return AltimetrikRepository.getData(context)
     }
 }

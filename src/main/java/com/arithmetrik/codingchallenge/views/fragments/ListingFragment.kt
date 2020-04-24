@@ -71,7 +71,7 @@ class ListingFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
         viewModel = ViewModelProviders.of(this).get(AltimetrikViewModel::class.java)
-        viewModel.getData()?.observe(this, Observer {
+        viewModel.getData(context)?.observe(this, Observer {
             Log.d("ListingFragment size - ", it.size.toString())
             dataList.addAll(it)
             listAdapter?.notifyDataSetChanged()
@@ -81,7 +81,7 @@ class ListingFragment : Fragment() {
 
     private fun setupRecyclerView(it: List<DataModel>) {
         if (listAdapter == null) {
-            listAdapter = ListItemAdapter(context, it,fragmentCallbacks)
+            listAdapter = ListItemAdapter(context, it, fragmentCallbacks)
             recyclerView?.layoutManager = LinearLayoutManager(this.context)
             recyclerView?.adapter = listAdapter
         } else
