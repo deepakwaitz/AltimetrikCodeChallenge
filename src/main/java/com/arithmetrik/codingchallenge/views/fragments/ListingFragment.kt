@@ -6,7 +6,6 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -80,8 +79,7 @@ class ListingFragment : Fragment() {
             mCurrentPage = currentPage
             if (mTotalItemCount > (currentPage * ITEM_LIMIT) - 1) {
                 Log.d("mCurrentPage - ", mCurrentPage.toString())
-                // searchTerm?.let { storyListViewModel?.loadSearchResult(it, mCurrentPage) }
-                viewModel.getData(context, mCurrentPage * ITEM_LIMIT)
+                viewModel.getData(context, mCurrentPage * ITEM_LIMIT, searchTerm)
             }
         }
     }
@@ -102,20 +100,8 @@ class ListingFragment : Fragment() {
                 val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(searchET?.windowToken, 0)
                 searchTerm = searchET?.text?.trim().toString()
-                if (!TextUtils.isEmpty(searchTerm)) {
-                    viewModel.getSearchData(context, searchTerm)?.observe(this, Observer {
-                        if (it != null && it.size > 0) {
-                            dataList.clear()
-                            dataList.addAll(it)
-                            listAdapter?.notifyDataSetChanged()
-                            recyclerView?.visibility = View.VISIBLE
-                            errorMsgTV?.visibility = View.GONE
-                        } else {
-                            recyclerView?.visibility = View.GONE
-                            errorMsgTV?.visibility = View.VISIBLE
-                        }
-                    })
-                }
+                dataList.clear()
+                viewModel.getData(context, 0, searchTerm)
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
@@ -128,7 +114,7 @@ class ListingFragment : Fragment() {
     }
 
     private fun loadData(viewModel: AltimetrikViewModel, offset: Int) {
-        viewModel.getData(context, offset)?.observe(this, Observer {
+        viewModel.getData(context, offset, "")?.observe(this, Observer {
             if (it != null && it.size > 0) {
                 dataList.addAll(it)
                 itemCountTV?.text = dataList.size.toString() + " / 101"
@@ -138,6 +124,7 @@ class ListingFragment : Fragment() {
                 errorMsgTV?.visibility = View.GONE
                 mEndlessScrollListener.setLoadingCompleted()
             } else {
+                itemCountTV?.text = "0/0"
                 mEndlessScrollListener.resetState()
                 recyclerView?.visibility = View.GONE
                 errorMsgTV?.visibility = View.VISIBLE

@@ -3,7 +3,7 @@ package com.arithmetrik.codingchallenge
 import Constants.Companion.ITEM_LIMIT
 import RetrofitApiClient
 import android.content.Context
-import android.util.Log
+import android.text.TextUtils
 import androidx.lifecycle.MutableLiveData
 import com.arithmetrik.codingchallenge.db.AppDataBase
 import com.arithmetrik.codingchallenge.networkService.IDataService
@@ -16,25 +16,15 @@ object AltimetrikRepository {
     private var appDatabase: AppDataBase? = null
     val newsData: MutableLiveData<List<DataModel>> = MutableLiveData<List<DataModel>>()
 
-    fun search(context: Context?, searchTearm: String): MutableLiveData<List<DataModel>> {
-        val searchData: MutableLiveData<List<DataModel>> = MutableLiveData<List<DataModel>>()
+    fun getData(context: Context?, offSet: Int, searchTerm: String): MutableLiveData<List<DataModel>> {
         if (appDatabase == null)
             appDatabase = AppDataBase.getAppDataBaseInstance(context)
 
         if (appDatabase?.dataDao()?.getCount() != 0) {
-            searchData.value = appDatabase?.dataDao()?.search("%" + searchTearm + "%")
-            return searchData
-        }
-        return searchData
-    }
-
-
-    fun getData(context: Context?, offSet: Int): MutableLiveData<List<DataModel>> {
-        if (appDatabase == null)
-            appDatabase = AppDataBase.getAppDataBaseInstance(context)
-
-        if (appDatabase?.dataDao()?.getCount() != 0) {
-            newsData.value = appDatabase?.dataDao()?.getLimitedData(offSet, ITEM_LIMIT)
+            if (!TextUtils.isEmpty(searchTerm))
+                newsData.value = appDatabase?.dataDao()?.getSearchedData(offSet, ITEM_LIMIT, "%" + searchTerm + "%")
+            else
+                newsData.value = appDatabase?.dataDao()?.getLimitedData(offSet, ITEM_LIMIT)
             return newsData
         } else
             return getDataFromAPI(offSet)
@@ -48,12 +38,9 @@ object AltimetrikRepository {
         retrofitService.getData().enqueue(object : Callback<List<DataModel>> {
             override fun onFailure(call: Call<List<DataModel>>, t: Throwable) {
                 newsData.value = null
-                Log.d("Repository- onFailure", t.message)
             }
 
             override fun onResponse(call: Call<List<DataModel>>, response: Response<List<DataModel>>) {
-                Log.d("Repository- onResponse", "")
-                //newsData.value = response.body()
                 response.body()?.let { appDatabase?.dataDao()?.insertData(it) }
                 newsData.value = appDatabase?.dataDao()?.getLimitedData(offSet, ITEM_LIMIT)
             }
