@@ -8,4 +8,6 @@
     <string name="state_placeholder">State - &#160;</string>
     <string name="type_placeholder">Type - &#160;</string>
     <string name="backers_placeholder">Number of Backers - &#160;</string>
+    <string name="search_by_title_hint">Search by title</string>
+    <string name="oops_no_items_to_show">Oops, no items to show.</string>
 </resources>

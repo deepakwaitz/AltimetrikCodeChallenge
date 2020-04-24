@@ -5,10 +5,14 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -24,10 +28,13 @@ import java.util.*
 class ListingFragment : Fragment() {
 
     private var recyclerView: RecyclerView? = null
+    private var searchET: EditText? = null
+    private var errorMsgTV: TextView? = null
     private lateinit var viewModel: AltimetrikViewModel
     private var listAdapter: ListItemAdapter? = null
     private var dataList: ArrayList<DataModel> = ArrayList<DataModel>()
     var fragmentCallbacks: FragmentCallBack? = null
+    private var searchTerm: String = ""
 
     /*
        * onAttach(Context) is not called on pre API 23 versions of Android and onAttach(Activity) is deprecated
@@ -64,17 +71,50 @@ class ListingFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view: View = inflater.inflate(R.layout.fragment_list, container, false)
         recyclerView = view.findViewById(R.id.recycler_view)
+        searchET = view.findViewById(R.id.search_edit_text)
+        errorMsgTV = view.findViewById(R.id.error_message)
         return view
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        searchET?.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(searchET?.windowToken, 0)
+                searchTerm = searchET?.text?.trim().toString()
+                if (!TextUtils.isEmpty(searchTerm)) {
+                    viewModel.getSearchData(context, searchTerm)?.observe(this, Observer {
+                        if (it != null && it.size > 0) {
+                            dataList.clear()
+                            dataList.addAll(it)
+                            listAdapter?.notifyDataSetChanged()
+                            recyclerView?.visibility = View.VISIBLE
+                            errorMsgTV?.visibility = View.GONE
+                        } else {
+                            recyclerView?.visibility = View.GONE
+                            errorMsgTV?.visibility = View.VISIBLE
+                        }
+                    })
+                }
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
+        }
+
 
         viewModel = ViewModelProviders.of(this).get(AltimetrikViewModel::class.java)
         viewModel.getData(context)?.observe(this, Observer {
-            Log.d("ListingFragment size - ", it.size.toString())
-            dataList.addAll(it)
-            listAdapter?.notifyDataSetChanged()
+            if (it != null && it.size > 0) {
+                dataList.clear()
+                dataList.addAll(it)
+                listAdapter?.notifyDataSetChanged()
+                recyclerView?.visibility = View.VISIBLE
+                errorMsgTV?.visibility = View.GONE
+            } else {
+                recyclerView?.visibility = View.GONE
+                errorMsgTV?.visibility = View.VISIBLE
+            }
         })
         setupRecyclerView(dataList)
     }

@@ -14,6 +14,19 @@ import retrofit2.Response
 object AltimetrikRepository {
     private var appDatabase: AppDataBase? = null
 
+    fun search(context: Context?, searchTearm: String): MutableLiveData<List<DataModel>> {
+        val searchData: MutableLiveData<List<DataModel>> = MutableLiveData<List<DataModel>>()
+        if (appDatabase == null)
+            appDatabase = AppDataBase.getAppDataBaseInstance(context)
+
+        if (appDatabase?.dataDao()?.getCount() != 0) {
+            searchData.value = appDatabase?.dataDao()?.search("%"+searchTearm+"%")
+            return searchData
+        }
+        return searchData
+    }
+
+
     fun getData(context: Context?): MutableLiveData<List<DataModel>> {
         val newsData: MutableLiveData<List<DataModel>> = MutableLiveData<List<DataModel>>()
         if (appDatabase == null)
